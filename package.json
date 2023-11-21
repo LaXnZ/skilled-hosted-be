@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "engines": {
+  "node": "16.13.0"
+},
   "type": "module",
   "scripts": {
      "dev": "npx prisma db push && nodemon index.js",
