@@ -82,29 +82,33 @@ export const getUserInfo = async (req, res, next) => {
   try {
     if (req.userId) {
       const prisma = new PrismaClient();
-      const user = await prisma.user.findUnique({
-        where: {
-          id: req.userId,
-        },
-      });
-      delete user?.password;
-      return res.status(200).json({
-        user: {
-          id: user?.id,
-          email: user?.email,
-          image: user?.profileImage,
-          username: user?.username,
-          fullName: user?.fullName,
-          description: user?.description,
-          isProfileSet: user?.isProfileInfoSet,
-        },
-      });
+      try {
+        const user = await prisma.user.findUnique({
+          where: {
+            id: req.userId,
+          },
+        });
+        delete user?.password;
+        return res.status(200).json({
+          user: {
+            id: user?.id,
+            email: user?.email,
+            image: user?.profileImage,
+            username: user?.username,
+            fullName: user?.fullName,
+            description: user?.description,
+            isProfileSet: user?.isProfileInfoSet,
+          },
+        });
+      } finally {
+        await prisma.$disconnect();
+      }
     }
-    return res.status(400).json({ message: "User ID not found" });
   } catch (err) {
     res.status(500).send("Internal Server Occured");
   }
 };
+
 
 
 export const setUserInfo = async (req, res, next) => {
