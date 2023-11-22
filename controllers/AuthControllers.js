@@ -87,32 +87,22 @@ export const getUserInfo = async (req, res, next) => {
           id: req.userId,
         },
       });
-      
-      // Check if the user exists before accessing its properties
-      if (user) {
-        delete user.password;
-        return res.status(200).json({
-          user: {
-            id: user.id,
-            email: user.email,
-            image: user.profileImage,
-            username: user.username,
-            fullName: user.fullName,
-            description: user.description,
-            isProfileSet: user.isProfileInfoSet,
-          },
-        });
-      } else {
-        // Handle the case where the user with the specified ID is not found
-        return res.status(404).json({ error: "User not found" });
-      }
-    } else {
-      // Handle the case where req.userId is not defined
-      return res.status(400).json({ error: "User ID not provided" });
+      delete user?.password;
+      return res.status(200).json({
+        user: {
+          id: user?.id,
+          email: user?.email,
+          image: user?.profileImage,
+          username: user?.username,
+          fullName: user?.fullName,
+          description: user?.description,
+          isProfileSet: user?.isProfileInfoSet,
+        },
+      });
     }
+    return res.status(400).json({ message: "User ID not found" });
   } catch (err) {
-    console.error(err);
-    res.status(500).send("Internal Server Error");
+    res.status(500).send("Internal Server Occured");
   }
 };
 
