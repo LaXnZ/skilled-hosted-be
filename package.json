@@ -8,7 +8,7 @@
 },
   "type": "module",
  "scripts": {
-  "dev": "concurrently \"npx prisma studio\" \"nodemon index.js\"",
+  "dev": "nodemon index.js",
   "build": "npm install && npx prisma db push",
   "test": "echo \"Error: no test specified\" && exit 1"
 },
