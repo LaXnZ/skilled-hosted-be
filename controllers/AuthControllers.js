@@ -115,41 +115,54 @@ export const setUserInfo = async (req, res, next) => {
   try {
     if (req?.userId) {
       const { userName, fullName, description } = req.body;
-      if (userName && fullName && description) {
-        const prisma = new PrismaClient();
-        const userNameValid = await prisma.user.findUnique({
-          where: { username: userName },
-        });
-        if (userNameValid) {
-          return res.status(200).json({ userNameError: true });
-        }
-        await prisma.user.update({
-          where: { id: req.userId },
-          data: {
-            username: userName,
-            fullName,
-            description,
-            isProfileInfoSet: true,
-          },
-        });
-        return res.status(200).send("Profile data updated successfully.");
-      } else {
-        return res
-          .status(400)
-          .send("Username, Full Name and description should be included.");
+
+      // Input validation
+      if (!(userName && fullName && description)) {
+        return res.status(400).json({ error: "Username, Full Name, and description are required." });
       }
+
+      const prisma = new PrismaClient();
+
+      // Check if the username is already taken
+      const userNameValid = await prisma.user.findUnique({
+        where: { username: userName },
+      });
+      
+      if (userNameValid) {
+        return res.status(200).json({ userNameError: true });
+      }
+
+      // Update user profile information
+      await prisma.user.update({
+        where: { id: req.userId },
+        data: {
+          username: userName,
+          fullName,
+          description,
+          isProfileInfoSet: true,
+        },
+      });
+
+      // Respond with success
+      return res.status(200).json({ success: true, message: "Profile data updated successfully." });
+    } else {
+      return res.status(400).json({ error: "User ID not provided." });
     }
   } catch (err) {
+    console.error(err);
+
+    // Handle Prisma errors
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
       if (err.code === "P2002") {
         return res.status(400).json({ userNameError: true });
       }
-    } else {
-      return res.status(500).send("Internal Server Error");
     }
-    throw err;
+
+    // Handle other errors
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 export const setUserImage = async (req, res, next) => {
   try {
