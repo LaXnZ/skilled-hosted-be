@@ -14,8 +14,8 @@ const upload = multer({ dest: "uploads/profiles/" });
 
 authRoutes.post("/signup", signup);
 authRoutes.post("/login", login);
-authRoutes.post("/get-user-info",  getUserInfo);
-authRoutes.post("/set-user-info",  setUserInfo);
+authRoutes.post("/get-user-info", verifyToken, getUserInfo);
+authRoutes.post("/set-user-info", verifyToken, setUserInfo);
 
 authRoutes.post(
   "/set-user-image",
