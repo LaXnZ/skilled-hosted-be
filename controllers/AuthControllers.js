@@ -16,6 +16,8 @@ const createToken = (email, userId) => {
   });
 };
 
+const BE_URL = "http://localhost:3001";
+
 export const signup = async (req, res, next) => {
   try {
     const prisma = new PrismaClient();
@@ -67,7 +69,15 @@ export const login = async (req, res, next) => {
       }
 
       return res.status(200).json({
-        user: { id: user?.id, email: user?.email },
+        user: {
+          id: user.id,
+          email: user.email,
+          image: `${BE_URL}/${user.profileImage}`,
+          username: user.username,
+          fullName: user.fullName,
+          description: user.description,
+          isProfileSet: user.isProfileInfoSet,
+        },
         jwt: createToken(email, user.id),
       });
     } else {
@@ -87,7 +97,7 @@ export const getUserInfo = async (req, res, next) => {
           id: req.userId,
         },
       });
-      
+
       // Check if the user exists before accessing its properties
       if (user) {
         delete user.password;
@@ -95,7 +105,7 @@ export const getUserInfo = async (req, res, next) => {
           user: {
             id: user.id,
             email: user.email,
-            image: user.profileImage,
+            image: `${BE_URL}/${user.profileImage}`,
             username: user.username,
             fullName: user.fullName,
             description: user.description,
@@ -116,9 +126,6 @@ export const getUserInfo = async (req, res, next) => {
   }
 };
 
-
-
-
 export const setUserInfo = async (req, res, next) => {
   try {
     if (req?.userId) {
@@ -126,7 +133,9 @@ export const setUserInfo = async (req, res, next) => {
 
       // Input validation
       if (!(userName && fullName && description)) {
-        return res.status(400).json({ error: "Username, Full Name, and description are required." });
+        return res.status(400).json({
+          error: "Username, Full Name, and description are required.",
+        });
       }
 
       const prisma = new PrismaClient();
@@ -135,7 +144,7 @@ export const setUserInfo = async (req, res, next) => {
       const userNameValid = await prisma.user.findUnique({
         where: { username: userName },
       });
-      
+
       if (userNameValid) {
         return res.status(200).json({ userNameError: true });
       }
@@ -152,7 +161,9 @@ export const setUserInfo = async (req, res, next) => {
       });
 
       // Respond with success
-      return res.status(200).json({ success: true, message: "Profile data updated successfully." });
+      return res
+        .status(200)
+        .json({ success: true, message: "Profile data updated successfully." });
     } else {
       return res.status(400).json({ error: "User ID not provided." });
     }
@@ -170,7 +181,6 @@ export const setUserInfo = async (req, res, next) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
 
 export const setUserImage = async (req, res, next) => {
   try {
